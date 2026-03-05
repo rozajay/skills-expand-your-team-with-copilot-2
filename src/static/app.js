@@ -552,6 +552,15 @@ document.addEventListener("DOMContentLoaded", () => {
             .join("")}
         </ul>
       </div>
+      <div class="share-section">
+        <span class="share-label">Share:</span>
+        <div class="share-buttons">
+          <a class="share-btn share-twitter" href="#" title="Share on X (Twitter)" data-activity="${name}" target="_blank" rel="noopener noreferrer">𝕏</a>
+          <a class="share-btn share-facebook" href="#" title="Share on Facebook" data-activity="${name}" target="_blank" rel="noopener noreferrer">f</a>
+          <a class="share-btn share-whatsapp" href="#" title="Share via WhatsApp" data-activity="${name}" target="_blank" rel="noopener noreferrer">💬</a>
+          <button class="share-btn share-copy" title="Copy link" data-activity="${name}">🔗</button>
+        </div>
+      </div>
       <div class="activity-card-actions">
         ${
           currentUser
@@ -587,7 +596,54 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    // Add click handlers for share buttons
+    setupShareButtons(activityCard, name, details);
+
     activitiesList.appendChild(activityCard);
+  }
+
+  // Function to set up social sharing buttons on an activity card
+  function setupShareButtons(card, activityName, details) {
+    const pageUrl = window.location.origin + window.location.pathname;
+    const activityUrl = `${pageUrl}?activity=${encodeURIComponent(activityName)}`;
+    const shareText = `Check out this activity: ${activityName} - ${details.description}`;
+
+    // Twitter/X share
+    const twitterBtn = card.querySelector(".share-twitter");
+    twitterBtn.href =
+      "https://twitter.com/intent/tweet?text=" +
+      encodeURIComponent(shareText) +
+      "&url=" +
+      encodeURIComponent(activityUrl);
+
+    // Facebook share
+    const facebookBtn = card.querySelector(".share-facebook");
+    facebookBtn.href =
+      "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(activityUrl);
+
+    // WhatsApp share
+    const whatsappBtn = card.querySelector(".share-whatsapp");
+    whatsappBtn.href =
+      "https://wa.me/?text=" + encodeURIComponent(`${shareText} ${activityUrl}`);
+
+    // Copy link
+    const copyBtn = card.querySelector(".share-copy");
+    copyBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText(activityUrl).then(() => {
+        const originalTitle = copyBtn.title;
+        copyBtn.title = "Link copied!";
+        copyBtn.classList.add("share-copy-success");
+        setTimeout(() => {
+          copyBtn.title = originalTitle;
+          copyBtn.classList.remove("share-copy-success");
+        }, 2000);
+      }).catch(() => {
+        copyBtn.title = "Copy failed – please copy the URL manually";
+        setTimeout(() => {
+          copyBtn.title = "Copy link";
+        }, 3000);
+      });
+    });
   }
 
   // Event listeners for search and filter
